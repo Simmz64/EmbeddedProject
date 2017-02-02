@@ -1,0 +1,62 @@
+/***** Function prototypes *****/
+void init(void);
+void TWIInit (void);
+void TWIStart(void);
+void TWIStop(void);
+void TWIWrite(uint8_t u8data);
+uint8_t TWIGetStatus(void);
+void blinkLED(void);
+uint8_t TWIReadACK(void);
+uint8_t TWIReadNACK(void);
+/*******************************/
+
+void TWIInit(void) {
+	TWSR = 0x00; // 2 LSB are prescaler settings, 00 -> Prescaler = 1
+	
+	TWBR = 0x02; // SCL Freq = CPU FREQ / (16 + 2*TWBR*Prescaler), TWBR = 2, Prescaler = 1, CPU F = 8 MHz --> SCL Freq = 400 KHz
+	
+	TWCR = (1<<TWEN); //Enable TWI
+}
+
+// Called when want to assume master control of TWI
+void TWIStart (void) {
+	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+	while((TWCR & (1<<TWINT)) == 0);
+}
+
+// Called to send stop signal
+void TWIStop (void) {
+	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+}
+
+// Called to write data to data register
+void TWIWrite(uint8_t u8data)
+{
+	TWDR = u8data;
+	TWCR = (1<<TWINT)|(1<<TWEN);
+	while ((TWCR & (1<<TWINT)) == 0);
+}
+
+// Called to read byte and send ACK on complete
+uint8_t TWIReadACK(void)
+{
+	TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA);
+	while ((TWCR & (1<<TWINT)) == 0);
+	return TWDR;
+}
+
+// Called to read byte without sending ACK
+uint8_t TWIReadNACK(void)
+{
+	TWCR = (1<<TWINT)|(1<<TWEN);
+	while ((TWCR & (1<<TWINT)) == 0);
+	return TWDR;
+}
+
+// Called to read status of TWI
+uint8_t TWIGetStatus(void)
+{
+	uint8_t status;
+	status = TWSR & 0xF8; // Only read five highest bits
+	return status;
+}

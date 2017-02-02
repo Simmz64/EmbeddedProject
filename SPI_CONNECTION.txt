@@ -1,0 +1,13 @@
+MBED		Display		Color of cable			In data sheet (probably)
++ 3,3V		3,3V		Red				
+GND		GND		Black				
+mosi		SDI		Green				SDI
+miso		SDO		Orange				SDO
+sck		RS		White				D/CX(SCL)
+cs		CS		Blue (pin 15, PB1)		CSX
+reset		RST		Yellow (pin 13, PD7)		
+dc		WR/SCL		Yellow (pin 16, PB2)		WRX(D/CX)
+GND		IM0		Orange				
++3,3V		IM1 IM2 IM3	Blue				
+GND		DB0 - DB17	
+GND		RD		Black				
