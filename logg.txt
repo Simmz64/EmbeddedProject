@@ -1,11 +1,27 @@
 2017-02-02
 
- - Ställt in SPI till mode 3 som det ska vara enligt databladet för skärmen
+- Ställt in SPI till mode 3 som det ska vara enligt databladet för skärmen
 
- - Funkar inte än
-   - Flimmer när kommunikationen sker, oklart varför
-   - Skickar kommando om 16bits pixlar, vet inte om kommandona tas emot korrekt
-   - Kanske kan försöka ta emot något via SPI som skärmen skickar? Försöka läsa av något värde
-   - Kopplat RD till GND, kanske måste också DB0-17 kopplas till GND?
+- Funkar inte än
+	- Flimmer när kommunikationen sker, oklart varför
+	- Skickar kommando om 16bits pixlar, vet inte om kommandona tas emot korrekt
+	- Kanske kan försöka ta emot något via SPI som skärmen skickar? Försöka läsa av något värde
+	- Kopplat RD till GND, kanske måste också DB0-17 kopplas till GND?
  
- - Testat en mängd saker, startat den här loggen (i efterhand), bör anvädas för att lista testade åtgärder
+- Testat en mängd saker, startat den här loggen (i efterhand), bör anvädas för att lista testade åtgärder
+
+
+
+2017-02-03
+
+- Fick skärmen att fungera!
+   	- Felet var i wr_cmd, för att initialisera kommando sätts både dc och cs till low (i koden, lite oklart
+	om det motsvarar pinne låg eller hög, kolla upp?) varefter dc ska sättas till HÖG innan vidare information
+	skickas. Här fanns ett typo i koden och dc sattes (igen) till low.
+
+- Hur touchen läses av:
+	- För att läsa Y, sätt X+ till 3.3V och X- till GND. Vice versa för att läsa X.
+	- Y_koord = Y_avläst/Y_drive * Skärmhöjd
+	- X_koord = X_avläst/X_drive * Skärmbredd
+
+- Skrev lite funktioner för fönsterhantering, rita lite saker etc

@@ -8,6 +8,7 @@ void cls(uint16_t color);
 void testPutChar(uint16_t color);
 void helpChar(uint8_t in, uint16_t color);
 void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color);
+void drawCross(uint16_t x, uint16_t y, uint16_t color);
 
 
 void window(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
@@ -143,6 +144,31 @@ void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color) {
     windowMax();
 }
 
+void drawCross(uint16_t x, uint16_t y, uint16_t color) {
+    // Draws a 15x15 cross with the center at the provided x, y coordinates
+    window(x-7, y-7, 15, 15);
+    uint16_t j,i;
+
+    wr_cmd(0x2C);
+    for(i = 0; i < 15; i++) {
+        for(j = 15; j > 0; j--) {
+            if((cross[i] >> (j-1)) & 0x01) {
+                spi_transceive(color >> 8);
+                spi_transceive(color & 0xFF);
+            } else {
+                spi_transceive(0xFF);
+                spi_transceive(0xFF);
+            }
+        }
+    }
+
+    cs_high();
+    windowMax();
+
+    
+}
+
+const uint16_t cross[15] = {0x4001, 0x2002, 0x1004, 0x808, 0x410, 0x220, 0x140, 0x80, 0x140, 0x220, 0x410, 0x808, 0x1004, 0x2002, 0x4001};
 
 const uint8_t FONT8x8[97][8] = {
 {0x08,0x08,0x08,0x00,0x00,0x00,0x00,0x00}, // columns, rows, num_bytes_per_char
