@@ -13,7 +13,7 @@ ATmega8, 48, 88, 168, 328
        PB7|10  19|PB5 SCK   
        PD5|11  18|PB4 MISO  
        PD6|12  17|PB3 MOSI  
-       PD7|13  16|PB2       DC
+ RST   PD7|13  16|PB2       DC
        PB0|14  15|PB1       CS
 */
 
@@ -24,9 +24,9 @@ ATmega8, 48, 88, 168, 328
 #include <stdlib.h>
 #include <string.h>
 #include <avr/interrupt.h>
-#include "lcd.h"
-#include "uart.h"
 
+#define XMAX 320
+#define YMAX 240
 
 /***** Function prototypes ******/
 void init(void);
@@ -35,17 +35,31 @@ void cs_high(void);
 void cs_low(void);
 void dc_high(void);
 void dc_low(void);
+void rst_high(void);
+void rst_low(void);
 void wr_cmd(unsigned char cmd);
 void tft_reset(void);
+void pixel(uint16_t x, uint16_t y, uint16_t color);
+void blinkLED(void);
 /********************************/
+
+// Flash LED
+void blinkLED(void) {
+	PORTB |= 0b00000001;
+	_delay_ms(250);
+	PORTB &= 0b11111110;
+	_delay_ms(250);
+}
 
 
 void init(void) {
 
 	// Set MOSI, SCK, PB1, PB2 as output
-	DDRB = (1<<PB5)|(1<<PB3) | (1<<PB1)|(1<<PB2);
+	DDRB = (1<<PB5)|(1<<PB3) | (1<<PB1)|(1<<PB2)|(1<<PB0);
+	DDRD = (1<<PD7);
 	// Initialize SPI command register
-	SPCR = (1<<SPIE)|(1<<SPE)|(1<<MSTR)|(1<<CPHA)|(0<<CPOL)|(0<<SPR1)|(0<<SPR0);
+	SPCR = (0<<SPIE)|(1<<SPE)|(1<<MSTR)|(1<<CPHA)|(1<<CPOL)|(0<<SPR1)|(0<<SPR0);
+	SPSR = (0<<SPI2X);
 
 	// Enable global interrupts
 	sei();
@@ -59,7 +73,7 @@ unsigned char spi_transceive (unsigned char data) {
 	// Wait until transmission is complete
 	while(!(SPSR & (1<<SPIF)));
 
-	// Return recevied data
+	// Return received data
 	return(SPDR);
 }
 
@@ -79,6 +93,14 @@ void dc_low(void) {
 	PORTB &= (0xFF ^ (1<<PB2));
 }
 
+void rst_high(void) {
+	PORTD |= (1<<PD7);
+}
+
+void rst_low(void) {
+	PORTD &= (0xFF ^ (1<<PD7));
+}
+
 void wr_cmd(unsigned char cmd) {
 	cs_low();
 	dc_low();
@@ -87,21 +109,20 @@ void wr_cmd(unsigned char cmd) {
 }
 
 
-// TODO Change _reset
 void tft_reset(void) {
 
 	cs_high();
 	dc_high();
-    _reset = 0;                        // display reset
+    rst_low();                        // display reset
 
     _delay_ms(1);
-    _reset = 1;                       // end hardware reset
+    rst_high();                       // end hardware reset
     _delay_ms(5);
      
     wr_cmd(0x01);                     // SW reset  
     _delay_ms(5);
     wr_cmd(0x28);                     // display off  
-
+	
     /* Start Initial Sequence ----------------------------------------------------*/
      wr_cmd(0xCF);                     
      spi_transceive(0x00);
@@ -157,7 +178,7 @@ void tft_reset(void) {
      cs_high(); 
      
      wr_cmd(0x36);                     // MEMORY_ACCESS_CONTROL
-     spi_transceive(0x48);
+     spi_transceive(0x28);			   // Default: 0x48
      cs_high(); 
      
      wr_cmd(0x3A);                     // COLMOD_PIXEL_FORMAT_SET
@@ -213,10 +234,27 @@ void tft_reset(void) {
      spi_transceive(0x1F);
      cs_high();
      
-     WindowMax ();
+     //WindowMax () : window (0, 0, width(), height())
+	 // This following code mimicks what window(...) does, but less modularly
+	 // Should probably be moved to a function with inputs x, y, width, height.
+	 wr_cmd(0x2A);
+	 spi_transceive(0>>8);
+	 spi_transceive(0);
+	 spi_transceive((XMAX-1) >> 8);
+	 spi_transceive((uint8_t)(XMAX-1));
+	 cs_high();
+	 
+	 wr_cmd(0x2B);
+	 spi_transceive(0 >> 8);
+	 spi_transceive(0);
+	 spi_transceive((YMAX-1) >> 8);
+	 spi_transceive((YMAX-1));
+	 cs_high();
+	 
+	 
      
-     //wr_cmd(0x34);                     // tearing effect off
-     //cs_high();
+     wr_cmd(0x34);                     // tearing effect off
+     cs_high();
      
      //wr_cmd(0x35);                     // tearing effect on
      //cs_high();
@@ -234,7 +272,7 @@ void tft_reset(void) {
      
      wr_cmd(0x11);                     // sleep out
      cs_high();
-     
+
      _delay_ms(100);
      
      wr_cmd(0x29);                     // display on
@@ -244,20 +282,20 @@ void tft_reset(void) {
      
 }
 
-void pixel(int x, int y, int color) {
+void pixel(uint16_t x, uint16_t y, uint16_t color) {
 	wr_cmd(0x2A);
     spi_transceive(x >> 8);
     spi_transceive(x);
     cs_high();
+	
     wr_cmd(0x2B);
     spi_transceive(y >> 8);
     spi_transceive(y);
     cs_high();
-    wr_cmd(0x2C);  // send pixel
-
+    
+	wr_cmd(0x2C);  // send pixel
     spi_transceive(color >> 8);
     spi_transceive(color & 0xFF);
-
     cs_high();
 }
 
@@ -265,6 +303,17 @@ int main(void) {
 
 	init();
 	tft_reset();
+	uint16_t xc;
+	uint16_t yc;
 
+	for(xc = 0; xc < XMAX; xc++) {
+		for(yc = 0; yc < YMAX; yc++) {
+			pixel(xc, yc, 0xF000);
+		}
+	}
+	while(1) {
+		blinkLED();
+	}
 	// Some loop changing some pixels?
+	
 }
