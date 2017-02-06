@@ -1,20 +1,20 @@
 /*
 ATmega8, 48, 88, 168, 328
 
-/Reset PC6|1   28|PC5
-RxD   PD0|2   27|PC4
-TxD   PD1|3   26|PC3
-PD2|4   25|PC2
-PD3|5   24|PC1
-PD4|6   23|PC0
-Vcc|7   22|Gnd
-Gnd|8   21|Aref
-PB6|9   20|AVcc
-PB7|10  19|PB5 SCK
-PD5|11  18|PB4 MISO
-PD6|12  17|PB3 MOSI
-RST   PD7|13  16|PB2       DC
-PB0|14  15|PB1       CS
+/Reset   PC6|1   28|PC5
+RxD      PD0|2   27|PC4
+TxD      PD1|3   26|PC3       Y-
+         PD2|4   25|PC2       X-
+         PD3|5   24|PC1       Y+
+         PD4|6   23|PC0       X+
+         Vcc|7   22|Gnd
+         Gnd|8   21|Aref
+         PB6|9   20|AVcc
+         PB7|10  19|PB5       SCK
+         PD5|11  18|PB4       MISO
+         PD6|12  17|PB3       MOSI
+   RST   PD7|13  16|PB2       DC
+         PB0|14  15|PB1       CS
 */
 
 #define  F_CPU 12000000UL
@@ -52,6 +52,8 @@ void testPutChar(uint16_t color);
 void helpChar(uint8_t in, uint16_t color);
 void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color);
 void drawCross(uint16_t x, uint16_t y, uint16_t color);
+uint16_t readX(void);
+uint16_t readY(void);
 /********************************/
 
 const uint16_t cross[15] = {0x4001, 0x2002, 0x1004, 0x808, 0x410, 0x220, 0x140, 0x80, 0x140, 0x220, 0x410, 0x808, 0x1004, 0x2002, 0x4001};
@@ -184,6 +186,8 @@ void init(void) {
 	sei();
 
 }
+
+
 
 unsigned char spi_transceive (unsigned char data) {
 	// Put data in data register
@@ -577,6 +581,30 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 	windowMax();
 
 	
+}
+
+// TODO readX, readY, initialize ports on MCU, poll?
+
+uint16_t readX(void) {
+	// Set X+ to input, Y+, Y- and X- as output
+	DDRC |= (0 << PC0)|(1 << PC1)|(1 << PC2)|(1 << PC3);
+	// Set Y+ to +3.3 and Y- to GND
+	PORTC |= 
+
+	// Set X- to GND and read off ADC value from X+
+
+
+}
+
+uint16_t readY(void) {
+	// Set Y+ to input, X+, Y- and X- as output
+	DDRC |= (1 << PC0)|(0 << PC1)|(1 << PC2)|(1 << PC3);
+	// Set Y+ to +3.3 and Y- to GND
+	PORTC |= 
+
+	// Set Y- to GND and read off ADC value from Y+
+
+
 }
 
 int main(void) {
