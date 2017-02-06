@@ -27,6 +27,8 @@ TxD      PD1|3   26|PC3       Y-
 
 #define XMAX 320
 #define YMAX 240
+#define FONT_SX 8
+#define FONT_SY 8
 
 /***** Function prototypes ******/
 void init(void);
@@ -54,6 +56,7 @@ void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color);
 void drawCross(uint16_t x, uint16_t y, uint16_t color);
 uint16_t readX(void);
 uint16_t readY(void);
+void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color);
 /********************************/
 
 const uint16_t cross[15] = {0x4001, 0x2002, 0x1004, 0x808, 0x410, 0x220, 0x140, 0x80, 0x140, 0x220, 0x410, 0x808, 0x1004, 0x2002, 0x4001};
@@ -167,9 +170,9 @@ const uint8_t FONT8x8[97][8] = {
 // Flash LED
 void blinkLED(void) {
 	PORTB |= 0b00000001;
-	_delay_ms(250);
+	_delay_ms(100);
 	PORTB &= 0b11111110;
-	_delay_ms(250);
+	_delay_ms(100);
 }
 
 
@@ -182,6 +185,8 @@ void init(void) {
 	SPCR = (0<<SPIE)|(1<<SPE)|(1<<MSTR)|(1<<CPHA)|(1<<CPOL)|(0<<SPR1)|(0<<SPR0);
 	SPSR = (1<<SPI2X);
 
+	// Initialize ADC
+	ADCSRA = (1 << ADEN)|(0 << ADPS2)|(1 << ADPS1)|(1 << ADPS0);
 	// Enable global interrupts
 	sei();
 
@@ -536,7 +541,7 @@ void testPutChar(uint16_t color) {
 
 void helpChar(uint8_t in, uint16_t color) {
 	uint8_t j;
-	for(j = 8; j > 0; j--) {
+	for(j = FONT_SX; j > 0; j--) {
 		if((in >> (j-1)) & 0x01) {
 			spi_transceive(color >> 8);
 			spi_transceive(color & 0xFF);
@@ -548,11 +553,11 @@ void helpChar(uint8_t in, uint16_t color) {
 }
 
 void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color) {
-	window(x, y, 8, 8); // Font is 8x8
+	window(x, y, FONT_SX, FONT_SX); // Font is 8x8
 	uint8_t ind = ch - 31; // Convert char to corresponding index in font
 	uint8_t j;
 	wr_cmd(0x2C);
-	for(j = 0; j < 8; j++) {
+	for(j = 0; j < FONT_SY; j++) {
 		helpChar(FONT8x8[ind][j], color);
 	}
 	cs_high();
@@ -561,10 +566,12 @@ void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color) {
 
 void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 	// Draws a 15x15 cross with the center at the provided x, y coordinates
+	/*
 	window(x-7, y-7, 15, 15);
 	uint16_t j,i;
 
 	wr_cmd(0x2C);
+	
 	for(i = 0; i < 15; i++) {
         for(j = 15; j > 0; j--) {
 	        if((cross[i] >> (j-1)) & 0x01) {
@@ -579,7 +586,10 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 
 	cs_high();
 	windowMax();
+	*/
 
+	drawVLine(x, y-7, y+7, color);
+	drawHLine(x-7, x+7, y, color);
 	
 }
 
@@ -587,22 +597,63 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 
 uint16_t readX(void) {
 	// Set X+ to input, Y+, Y- and X- as output
-	DDRC |= (0 << PC0)|(1 << PC1)|(1 << PC2)|(1 << PC3);
-	// Set Y+ to +3.3 and Y- to GND
-	PORTC |= 
+	DDRC = (0 << PC0)|(1 << PC1)|(1 << PC2)|(1 << PC3);
+	// Enable ADC on PC0
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(0 << MUX0);
+	// Set Y+ to +3.3 and Y-, X- to GND
+	PORTC |= (1 << PC1);
+	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
+	_delay_us(50);
+	// Read ADC value from X+
+	ADCSRA |= (1 << ADSC);
 
-	// Set X- to GND and read off ADC value from X+
+	// Wait for conversion
+	while(ADCSRA & (1 << ADSC));
+	PORTC &= ~(1 << PC1);
+	uint16_t result = ADC;
 
-
+	// Return scaled result: xV_read/xV_max * screen_width
+	return (uint16_t) (result*320/256); 
 }
 
 uint16_t readY(void) {
 	// Set Y+ to input, X+, Y- and X- as output
-	DDRC |= (1 << PC0)|(0 << PC1)|(1 << PC2)|(1 << PC3);
-	// Set Y+ to +3.3 and Y- to GND
-	PORTC |= 
+	DDRC = (1 << PC0)|(0 << PC1)|(1 << PC2)|(1 << PC3);
+	// Enable ADC on PC1
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(1 << MUX0);
+	// Set X+ to +3.3 and X-, Y- to GND
+	PORTC |= (1 << PC0);
+	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
+	_delay_us(50);
+	// Read ADC value from Y+
+	ADCSRA |= (1 << ADSC);
 
-	// Set Y- to GND and read off ADC value from Y+
+	while(ADCSRA & (1 << ADSC));
+	PORTC &= ~(1 << PC0);
+	uint16_t result = ADC;
+	
+	// Return scaled result
+	return (uint16_t) (result*240/256);
+
+}
+
+// Prints a number between 999 and 000
+void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color) {
+	uint16_t xpos = x;
+	//uint16_t j;
+	fillRect(x,y, 3*FONT_SX, FONT_SY, 0xFFFF);
+
+	putChar(xpos, y, ((uint8_t) (num/1000))+48, color);
+	num = num % 1000;
+	xpos = xpos + 8;
+	putChar(xpos, y, ((uint8_t) (num/100))+48, color);
+	num = num % 100;
+	xpos = xpos + 8;
+	putChar(xpos, y, ((uint8_t) (num/10))+48, color);
+	num = num % 10;
+	xpos = xpos + 8;
+	putChar(xpos, y, ((uint8_t) num)+48, color);
+
 
 
 }
@@ -625,25 +676,43 @@ int main(void) {
 	cls(0xFFFF);
 
 	drawRect(20, 20, 300, 220, 0x0000);
-	fillRect(140, 100, 40, 40, 0xF000);
-	testPutChar(0x001F);
-	putChar(60, 60, '@', 0x0000);
+	//fillRect(140, 100, 40, 40, 0xF000);
+	//testPutChar(0x001F);
+	//putChar(60, 60, '@', 0x0000);
 	
-	drawCross(80, 120, 0x0000);
+	//drawCross(80, 120, 0x0000);
 
-	uint8_t j,i = 0;
+	
+
+	//uint8_t j,i = 0;
+	uint16_t xpos = 0, ypos = 0;
+
 
 	while(1) {
 		blinkLED();
+		/*
 		for(j = 0; j < 25; j++) {
 			putChar(40+j*8, 40, 'A'+j, 0x07E0);
 		}
 		putChar(40+i*8, 40, 'A'+i, 0xF000);
+		
+
+		printNum(240, 60, i, 0x0000);
 		i++;
 		if(i > 24) {
 			i = 0;
 		}
+		*/
+		drawCross(xpos,ypos,0xFFFF);
 		
+		xpos = readX();
+		ypos = readY();
+		
+		drawCross(xpos, ypos, 0x0000);
+		drawRect(20, 20, 300, 220, 0x0000);
+		drawRect(220, 20, 300, 36, 0x0000);
+		printNum(224, 24, xpos, 0x0000);
+		printNum(264, 24, ypos, 0x0000);
 	}
 	// Some loop changing some pixels?
 	
