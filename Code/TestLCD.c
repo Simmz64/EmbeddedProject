@@ -30,6 +30,22 @@ TxD      PD1|3   26|PC3       Y-
 #define FONT_SX 8
 #define FONT_SY 8
 
+#define rxplate 180
+
+#define NUMSAMPLES 2
+
+//#define rxplate
+
+// X+ - PC0
+// Y+ - PC1
+// X- - PC2
+// Y- - PC3
+
+#define XP PC0
+#define YP PC1
+#define XM PC2
+#define YM PC3
+
 /***** Function prototypes ******/
 void init(void);
 unsigned char spi_transceive(unsigned char data);
@@ -56,7 +72,18 @@ void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color);
 void drawCross(uint16_t x, uint16_t y, uint16_t color);
 uint16_t readX(void);
 uint16_t readY(void);
+uint16_t readZ(void);
 void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color);
+void drawTestUI(void);
+uint8_t isInXSpan(uint16_t xp, uint16_t xspan, uint16_t wspan);
+uint8_t isInYSpan(uint16_t yp, uint16_t yspan, uint16_t hspan);
+uint8_t isInBox(uint16_t xp, uint16_t yp, uint16_t xbox, uint16_t ybox, uint16_t wbox, uint16_t hbox);
+void checkBoxBounds(void);
+void printToBox(uint16_t xbox, uint16_t ybox, uint16_t num);
+void printToBoxes(void);
+void xBufPut(uint16_t xp);
+void yBufPut(uint16_t yp);
+void testTouch(void);
 /********************************/
 
 const uint16_t cross[15] = {0x4001, 0x2002, 0x1004, 0x808, 0x410, 0x220, 0x140, 0x80, 0x140, 0x220, 0x410, 0x808, 0x1004, 0x2002, 0x4001};
@@ -163,7 +190,10 @@ const uint8_t FONT8x8[97][8] = {
 
 
 
-
+volatile uint16_t boxCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+volatile uint16_t xbuf[5] = {0, 0, 0, 0, 0};
+volatile uint16_t ybuf[5] = {0, 0, 0, 0, 0};
+volatile uint16_t xptr = 0, yptr = 0;
 
 
 
@@ -596,52 +626,122 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 // TODO readX, readY, initialize ports on MCU, poll?
 
 uint16_t readX(void) {
-	// Set X+ to input, Y+, Y- and X- as output
-	DDRC = (0 << PC0)|(1 << PC1)|(1 << PC2)|(1 << PC3);
-	// Enable ADC on PC0
+	uint32_t xs;
+	uint16_t samples[NUMSAMPLES];
+	uint8_t i;
+
+	DDRC = (0 << XP)|(1 << YP)|(0 << XM)|(1 << YM);
+	PORTC &= ~(1 << XP);
+	PORTC &= ~(1 << XM);
+
+	PORTC |= (1 << YP);
+	PORTC &= ~(1 << YM);
+
 	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(0 << MUX0);
-	// Set Y+ to +3.3 and Y-, X- to GND
-	PORTC |= (1 << PC1);
-	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
-	_delay_us(50);
-	// Read ADC value from X+
-	ADCSRA |= (1 << ADSC);
 
-	// Wait for conversion
-	while(ADCSRA & (1 << ADSC));
-	PORTC &= ~(1 << PC1);
-	uint16_t result = ADC;
+	_delay_us(20);
 
-	// Return scaled result: xV_read/xV_max * screen_width
-	return (uint16_t) (result*320/256); 
+
+	for(i = 0; i < NUMSAMPLES; i++) {
+		ADCSRA |= (1 << ADSC);
+		while(ADCSRA & (1 << ADSC));
+		samples[i] = ADC;
+	}
+
+	int16_t diff = samples[1] - samples[0];
+
+	if(diff < 8 && diff > -8) {
+		xs = (samples[0] + samples[1]) >> 1; // Average 2 samples
+		xs += 1195;
+		xs *= 323;
+		xs /= 820;
+
+		return (uint16_t) xs;
+	} else {
+		return 0;
+	}
+
+	
+
 }
 
 uint16_t readY(void) {
-	// Set Y+ to input, X+, Y- and X- as output
-	DDRC = (1 << PC0)|(0 << PC1)|(1 << PC2)|(1 << PC3);
-	// Enable ADC on PC1
-	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(1 << MUX0);
-	// Set X+ to +3.3 and X-, Y- to GND
-	PORTC |= (1 << PC0);
-	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
-	_delay_us(50);
-	// Read ADC value from Y+
-	ADCSRA |= (1 << ADSC);
+	uint32_t ys;
+	uint16_t samples[NUMSAMPLES];
+	uint8_t i;
 
-	while(ADCSRA & (1 << ADSC));
-	PORTC &= ~(1 << PC0);
-	uint16_t result = ADC;
+	DDRC = (1 << XP)|(0 << YP)|(1 << XM)|(0 << YM);
+	PORTC &= ~(1 << YP);
+	PORTC &= ~(1 << YM);
+
+	PORTC |= (1 << XP);
+	PORTC &= ~(1 << XM);
+
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(1 << MUX0);
+
+	_delay_us(20);
+
+
+	for(i = 0; i < NUMSAMPLES; i++) {
+		ADCSRA |= (1 << ADSC);
+		while(ADCSRA & (1 << ADSC));
+		samples[i] = ADC;
+	}
+
+	int16_t diff = samples[1] - samples[0];
+
+	if(diff < 10 && diff > -10) {
+		samples[1] = (samples[0] + samples[1]) >> 1; // Average 2 samples
+		ys = (1023 - samples[1]);
+		ys += 1331;
+		ys *= 243;
+		ys /= 710;
+
+		return (uint16_t) ys;
+	} else {
+		return 0;
+	}
+
 	
-	// Return scaled result
-	return (uint16_t) (result*240/256);
 
 }
 
-// Prints a number between 999 and 000
+uint16_t readZ(void) {
+	int32_t z1, z2, z;
+
+	DDRC = (1 << XP)|(0 << YP)|(0 << XM)|(1 << YM);
+	PORTC &= ~(1 << XP);
+	PORTC |= (1 << YM);
+	PORTC &= ~(1 << YP);
+
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(1 << MUX1)|(0 << MUX0);
+	_delay_us(20);
+
+
+	ADCSRA |= (1 << ADSC);
+	while(ADCSRA & (1 << ADSC));
+	z1 = ADC;
+
+
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(1 << MUX0);
+	_delay_us(20);
+
+
+	ADCSRA |= (1 << ADSC);
+	while(ADCSRA & (1 << ADSC));
+	z2 = ADC;
+	
+
+	z = (1023 - (z2-z1));
+	return (uint16_t) z;
+
+}
+
+// Prints a number between 9999 and 0000
 void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color) {
 	uint16_t xpos = x;
 	//uint16_t j;
-	fillRect(x,y, 3*FONT_SX, FONT_SY, 0xFFFF);
+	//fillRect(x,y, 3*FONT_SX, FONT_SY, 0xFFFF);
 
 	putChar(xpos, y, ((uint8_t) (num/1000))+48, color);
 	num = num % 1000;
@@ -658,63 +758,158 @@ void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color) {
 
 }
 
+void drawTestUI(void) {
+
+	uint8_t j, i;
+	
+	drawRect(20, 20, 300, 220, 0x0000);
+	drawRect(220, 20, 300, 36, 0x0000);
+
+	for(i = 0; i < 2; i++) {
+		for(j = 0; j < 4; j++) {
+			drawRect(20+j*70, 36+i*92, 90+j*70, 128+i*92, 0x0000);
+		}
+	}
+
+}
+
+uint8_t isInXSpan(uint16_t xp, uint16_t xspan, uint16_t wspan) {
+	if(xp > xspan && xp < (xspan + wspan)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+uint8_t isInYSpan(uint16_t yp, uint16_t yspan, uint16_t hspan) {
+	if(yp > yspan && yp < (yspan + hspan)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+uint8_t isInBox(uint16_t xp, uint16_t yp, uint16_t xbox, uint16_t ybox, uint16_t wbox, uint16_t hbox) {
+
+	uint8_t xbool = isInXSpan(xp, xbox, wbox);
+	uint8_t ybool = isInYSpan(yp, ybox, hbox);
+
+	return (xbool & ybool);
+
+}
+
+void checkBoxBounds(void) {
+
+	uint8_t i, j, k, tmp, count;
+
+
+	for(i = 0; i < 2; i++) {
+		
+		for(j = 0; j < 4; j++) {
+
+			count = 0;
+
+			for(k = 0; k < 5; k++) {
+				tmp = isInBox(xbuf[k], ybuf[k], 20+j*70, 36+i*92, 70, 92);
+				
+				if(tmp) {
+					count++;
+				}
+			}
+
+			if(count == 3) {
+				boxCount[(i*4)+j]++;
+			}
+		}
+	}
+
+}
+
+void printToBox(uint16_t xbox, uint16_t ybox, uint16_t num) {
+	printNum(xbox+19, ybox+42, num, 0x0000);
+}
+
+void printToBoxes(void) {
+	uint8_t i, j;
+
+	for(i = 0; i < 2; i++) {
+		for(j = 0; j < 4; j++) {
+			printToBox(20+j*70, 36+i*92, boxCount[(i*4) + j]);
+		}
+	}
+}
+
+void xBufPut(uint16_t xp) {
+	xbuf[xptr] = xp-512;
+	xptr++;
+	xptr = xptr % 5;
+}
+
+void yBufPut(uint16_t yp) {
+	ybuf[yptr] = yp-512;
+	yptr++;
+	yptr = yptr % 5;
+}
+
+// Testing the touch characteristics as well as some drawing on the screen
+void testTouch(void) {
+	uint16_t xpos = 0, ypos = 0, z = 0;
+
+
+	while(1) {
+		// Flashes LED and induces delay in loop
+		blinkLED();
+
+		drawCross(xpos,ypos,0xFFFF);
+
+		z = readZ();
+		
+		if(z > 500) {
+			xpos = readX();
+			ypos = readY();
+		} else {
+			xpos = 0;
+			ypos = 0;
+		}
+		
+
+
+		xBufPut(xpos);
+		yBufPut(ypos);
+		
+		//xpos = tpoint.x;
+		//ypos = tpoint.y;
+
+
+		drawCross(xpos, ypos, 0x0000);
+		drawTestUI();
+		checkBoxBounds();
+		printToBoxes();
+		if(xpos > 0) {
+			printNum(224, 24, xpos-512, 0x0000);
+		}
+
+		if(ypos > 0) {
+			printNum(264, 24, ypos-512, 0x0000);	
+		}
+		
+		printNum(24, 24, z, 0x0000);
+	}
+}
+
 int main(void) {
 
 	init();
 	tft_reset();
-	/*
-	uint16_t xc;
-	uint16_t yc;
 
-
-	for(xc = 0; xc < XMAX; xc++) {
-	for(yc = 0; yc < YMAX; yc++) {
-	pixel(xc, yc, 0xFFFF);
-	}
-	}
-	*/
 	cls(0xFFFF);
 
-	drawRect(20, 20, 300, 220, 0x0000);
+	
 	//fillRect(140, 100, 40, 40, 0xF000);
 	//testPutChar(0x001F);
 	//putChar(60, 60, '@', 0x0000);
 	
-	//drawCross(80, 120, 0x0000);
-
-	
-
-	//uint8_t j,i = 0;
-	uint16_t xpos = 0, ypos = 0;
-
-
-	while(1) {
-		blinkLED();
-		/*
-		for(j = 0; j < 25; j++) {
-			putChar(40+j*8, 40, 'A'+j, 0x07E0);
-		}
-		putChar(40+i*8, 40, 'A'+i, 0xF000);
-		
-
-		printNum(240, 60, i, 0x0000);
-		i++;
-		if(i > 24) {
-			i = 0;
-		}
-		*/
-		drawCross(xpos,ypos,0xFFFF);
-		
-		xpos = readX();
-		ypos = readY();
-		
-		drawCross(xpos, ypos, 0x0000);
-		drawRect(20, 20, 300, 220, 0x0000);
-		drawRect(220, 20, 300, 36, 0x0000);
-		printNum(224, 24, xpos, 0x0000);
-		printNum(264, 24, ypos, 0x0000);
-	}
-	// Some loop changing some pixels?
+	testTouch();
 	
 }
 

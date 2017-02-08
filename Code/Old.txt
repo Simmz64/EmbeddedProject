@@ -1,0 +1,41 @@
+uint16_t readX(void) {
+	// Set X+ to input, Y+, Y- and X- as output
+	DDRC = (0 << PC0)|(1 << PC1)|(1 << PC2)|(1 << PC3);
+	// Enable ADC on PC0
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(0 << MUX0);
+	// Set Y+ to +3.3 and Y-, X- to GND
+	PORTC |= (1 << PC1);
+	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
+	_delay_us(50);
+	// Read ADC value from X+
+	ADCSRA |= (1 << ADSC);
+
+	// Wait for conversion
+	while(ADCSRA & (1 << ADSC));
+	PORTC &= ~(1 << PC1);
+	uint16_t result = ADC;
+
+	// Return scaled result: xV_read/xV_max * screen_width
+	return (uint16_t) (result*320/256); 
+}
+
+uint16_t readY(void) {
+	// Set Y+ to input, X+, Y- and X- as output
+	DDRC = (1 << PC0)|(0 << PC1)|(1 << PC2)|(1 << PC3);
+	// Enable ADC on PC1
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(0 << MUX1)|(1 << MUX0);
+	// Set X+ to +3.3 and X-, Y- to GND
+	PORTC |= (1 << PC0);
+	PORTC &= (0xFF ^ ( (1 << PC2)|(1<<PC3) ));
+	_delay_us(50);
+	// Read ADC value from Y+
+	ADCSRA |= (1 << ADSC);
+
+	while(ADCSRA & (1 << ADSC));
+	PORTC &= ~(1 << PC0);
+	uint16_t result = ADC;
+	
+	// Return scaled result
+	return (uint16_t) (result*240/256);
+
+}
