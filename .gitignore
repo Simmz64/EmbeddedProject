@@ -1,2 +1,5 @@
 SPI_LCD_Touch/*
 ~*
+SPI_TFT_ILI9341
+tft-proto-*
+Thumbs.db
