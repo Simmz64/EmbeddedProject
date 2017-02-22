@@ -1,4 +1,4 @@
-update=2017-02-21 16:38:12
+update=2017-02-22 14:31:24
 version=1
 last_client=kicad
 [pcbnew]
@@ -27,7 +27,7 @@ NetIExt=net
 version=1
 [eeschema]
 version=1
-LibDir=
+LibDir=.pretty
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -59,3 +59,5 @@ LibName27=atmel
 LibName28=contrib
 LibName29=valves
 LibName30=tft-proto-mi0283qt-9a
+LibName31=meisei-m4-24h
+LibName32=mc34063a

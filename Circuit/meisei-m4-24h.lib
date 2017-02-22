@@ -1,0 +1,24 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#
+# Meisei-m4-24h
+#
+DEF Meisei-m4-24h K 0 40 Y Y 1 F N
+F0 "K" 0 400 60 H V C CNN
+F1 "Meisei-m4-24h" 0 -350 60 H V C CNN
+F2 "" 0 0 60 H I C CNN
+F3 "" 0 0 60 H I C CNN
+DRAW
+S -450 300 450 -250 0 1 0 N
+X Coil1 1 -650 200 200 R 50 50 1 1 I
+X T1common 4 -650 50 200 R 50 50 1 1 I
+X T1sel1 6 -650 -50 200 R 50 50 1 1 I
+X T1sel2 8 -650 -150 200 R 50 50 1 1 I
+X T2sel2 9 650 -150 200 L 50 50 1 1 I
+X T2sel1 11 650 -50 200 L 50 50 1 1 I
+X T2common 13 650 50 200 L 50 50 1 1 I
+X Coil2 16 650 200 200 L 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library

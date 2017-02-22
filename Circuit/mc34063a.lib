@@ -1,0 +1,24 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#
+# MC34063A
+#
+DEF MC34063A VR 0 40 Y Y 1 F N
+F0 "VR" 0 300 60 H V C CNN
+F1 "MC34063A" 0 -300 60 H V C CNN
+F2 "" -900 150 60 H I C CNN
+F3 "" -900 150 60 H I C CNN
+DRAW
+S -700 250 650 -250 0 1 0 N
+X Switch_Collector 1 -900 150 200 R 50 50 1 1 I
+X Switch_Emitter 2 -900 50 200 R 50 50 1 1 I
+X Timing_Capacitor 3 -900 -50 200 R 50 50 1 1 I
+X Grid 4 -900 -150 200 R 50 50 1 1 I
+X Comp_Inv_Input 5 850 -150 200 L 50 50 1 1 I
+X Vcc 6 850 -50 200 L 50 50 1 1 I
+X Ipk_Sense 7 850 50 200 L 50 50 1 1 I
+X Driver_Collector 8 850 150 200 L 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library
