@@ -37,7 +37,7 @@ EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 3
+Sheet 2 5
 Title ""
 Date ""
 Rev ""
@@ -96,31 +96,21 @@ $EndComp
 NoConn ~ 8100 2650
 NoConn ~ 8100 2750
 NoConn ~ 8100 2850
-Text GLabel 6350 2850 0    60   Input ~ 0
-RelayOutput4
 $Comp
 L GNDREF #PWR019
 U 1 1 58ADF9DC
-P 6100 2650
-F 0 "#PWR019" H 6100 2400 50  0001 C CNN
-F 1 "GNDREF" H 6100 2500 50  0000 C CNN
-F 2 "" H 6100 2650 50  0000 C CNN
-F 3 "" H 6100 2650 50  0000 C CNN
-	1    6100 2650
+P 6150 2500
+F 0 "#PWR019" H 6150 2250 50  0001 C CNN
+F 1 "GNDREF" H 6150 2350 50  0000 C CNN
+F 2 "" H 6150 2500 50  0000 C CNN
+F 3 "" H 6150 2500 50  0000 C CNN
+	1    6150 2500
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	8100 2500 8350 2500
 Wire Wire Line
 	6600 2500 6800 2500
-Wire Wire Line
-	6600 2750 6800 2750
-Wire Wire Line
-	6100 2650 6800 2650
-Wire Wire Line
-	6350 2850 6800 2850
-Text GLabel 7000 1850 2    60   Input ~ 0
-Output4
 Wire Notes Line
 	2600 1550 2600 6050
 Text Notes 2700 5950 0    60   ~ 0
@@ -139,13 +129,7 @@ $EndComp
 Wire Wire Line
 	6400 1850 6400 2200
 Wire Wire Line
-	6150 2650 6150 2500
-Wire Wire Line
 	6150 2500 6200 2500
-Connection ~ 6150 2650
-Wire Wire Line
-	6600 2750 6600 2650
-Connection ~ 6600 2650
 Wire Wire Line
 	6750 2500 6750 2100
 Wire Wire Line
@@ -209,31 +193,21 @@ $EndComp
 NoConn ~ 8100 4050
 NoConn ~ 8100 4150
 NoConn ~ 8100 4250
-Text GLabel 6350 4250 0    60   Input ~ 0
-RelayOutput5
 $Comp
 L GNDREF #PWR021
 U 1 1 58AE8983
-P 6100 4050
-F 0 "#PWR021" H 6100 3800 50  0001 C CNN
-F 1 "GNDREF" H 6100 3900 50  0000 C CNN
-F 2 "" H 6100 4050 50  0000 C CNN
-F 3 "" H 6100 4050 50  0000 C CNN
-	1    6100 4050
+P 6150 3900
+F 0 "#PWR021" H 6150 3650 50  0001 C CNN
+F 1 "GNDREF" H 6150 3750 50  0000 C CNN
+F 2 "" H 6150 3900 50  0000 C CNN
+F 3 "" H 6150 3900 50  0000 C CNN
+	1    6150 3900
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	8100 3900 8350 3900
 Wire Wire Line
 	6600 3900 6800 3900
-Wire Wire Line
-	6600 4150 6800 4150
-Wire Wire Line
-	6100 4050 6800 4050
-Wire Wire Line
-	6350 4250 6800 4250
-Text GLabel 7000 3250 2    60   Input ~ 0
-Output5
 $Comp
 L D D205
 U 1 1 58AE898F
@@ -248,13 +222,7 @@ $EndComp
 Wire Wire Line
 	6400 3250 6400 3600
 Wire Wire Line
-	6150 4050 6150 3900
-Wire Wire Line
 	6150 3900 6200 3900
-Connection ~ 6150 4050
-Wire Wire Line
-	6600 4150 6600 4050
-Connection ~ 6600 4050
 Wire Wire Line
 	6750 3900 6750 3500
 Wire Wire Line
@@ -318,31 +286,21 @@ $EndComp
 NoConn ~ 8100 5450
 NoConn ~ 8100 5550
 NoConn ~ 8100 5650
-Text GLabel 6350 5650 0    60   Input ~ 0
-RelayOutput6
 $Comp
 L GNDREF #PWR023
 U 1 1 58AE8A5B
-P 6100 5450
-F 0 "#PWR023" H 6100 5200 50  0001 C CNN
-F 1 "GNDREF" H 6100 5300 50  0000 C CNN
-F 2 "" H 6100 5450 50  0000 C CNN
-F 3 "" H 6100 5450 50  0000 C CNN
-	1    6100 5450
+P 6150 5300
+F 0 "#PWR023" H 6150 5050 50  0001 C CNN
+F 1 "GNDREF" H 6150 5150 50  0000 C CNN
+F 2 "" H 6150 5300 50  0000 C CNN
+F 3 "" H 6150 5300 50  0000 C CNN
+	1    6150 5300
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	8100 5300 8350 5300
 Wire Wire Line
 	6600 5300 6800 5300
-Wire Wire Line
-	6600 5550 6800 5550
-Wire Wire Line
-	6100 5450 6800 5450
-Wire Wire Line
-	6350 5650 6800 5650
-Text GLabel 7000 4650 2    60   Input ~ 0
-Output6
 $Comp
 L D D206
 U 1 1 58AE8A67
@@ -357,13 +315,7 @@ $EndComp
 Wire Wire Line
 	6400 4650 6400 5000
 Wire Wire Line
-	6150 5450 6150 5300
-Wire Wire Line
 	6150 5300 6200 5300
-Connection ~ 6150 5450
-Wire Wire Line
-	6600 5550 6600 5450
-Connection ~ 6600 5450
 Wire Wire Line
 	6750 5300 6750 4900
 Wire Wire Line
@@ -427,31 +379,21 @@ $EndComp
 NoConn ~ 5200 2600
 NoConn ~ 5200 2700
 NoConn ~ 5200 2800
-Text GLabel 3450 2800 0    60   Input ~ 0
-RelayOutput1
 $Comp
 L GNDREF #PWR025
 U 1 1 58AE8E33
-P 3200 2600
-F 0 "#PWR025" H 3200 2350 50  0001 C CNN
-F 1 "GNDREF" H 3200 2450 50  0000 C CNN
-F 2 "" H 3200 2600 50  0000 C CNN
-F 3 "" H 3200 2600 50  0000 C CNN
-	1    3200 2600
+P 3250 2450
+F 0 "#PWR025" H 3250 2200 50  0001 C CNN
+F 1 "GNDREF" H 3250 2300 50  0000 C CNN
+F 2 "" H 3250 2450 50  0000 C CNN
+F 3 "" H 3250 2450 50  0000 C CNN
+	1    3250 2450
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	5200 2450 5450 2450
 Wire Wire Line
 	3700 2450 3900 2450
-Wire Wire Line
-	3700 2700 3900 2700
-Wire Wire Line
-	3200 2600 3900 2600
-Wire Wire Line
-	3450 2800 3900 2800
-Text GLabel 4100 1800 2    60   Input ~ 0
-Output1
 $Comp
 L D D201
 U 1 1 58AE8E43
@@ -466,13 +408,7 @@ $EndComp
 Wire Wire Line
 	3500 1800 3500 2150
 Wire Wire Line
-	3250 2600 3250 2450
-Wire Wire Line
 	3250 2450 3300 2450
-Connection ~ 3250 2600
-Wire Wire Line
-	3700 2700 3700 2600
-Connection ~ 3700 2600
 Wire Wire Line
 	3850 2450 3850 2050
 Wire Wire Line
@@ -536,31 +472,21 @@ $EndComp
 NoConn ~ 5200 4000
 NoConn ~ 5200 4100
 NoConn ~ 5200 4200
-Text GLabel 3450 4200 0    60   Input ~ 0
-RelayOutput2
 $Comp
 L GNDREF #PWR027
 U 1 1 58AE8E73
-P 3200 4000
-F 0 "#PWR027" H 3200 3750 50  0001 C CNN
-F 1 "GNDREF" H 3200 3850 50  0000 C CNN
-F 2 "" H 3200 4000 50  0000 C CNN
-F 3 "" H 3200 4000 50  0000 C CNN
-	1    3200 4000
+P 3250 3850
+F 0 "#PWR027" H 3250 3600 50  0001 C CNN
+F 1 "GNDREF" H 3250 3700 50  0000 C CNN
+F 2 "" H 3250 3850 50  0000 C CNN
+F 3 "" H 3250 3850 50  0000 C CNN
+	1    3250 3850
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	5200 3850 5450 3850
 Wire Wire Line
 	3700 3850 3900 3850
-Wire Wire Line
-	3700 4100 3900 4100
-Wire Wire Line
-	3200 4000 3900 4000
-Wire Wire Line
-	3450 4200 3900 4200
-Text GLabel 4100 3200 2    60   Input ~ 0
-Output2
 $Comp
 L D D202
 U 1 1 58AE8E83
@@ -575,13 +501,7 @@ $EndComp
 Wire Wire Line
 	3500 3200 3500 3550
 Wire Wire Line
-	3250 4000 3250 3850
-Wire Wire Line
 	3250 3850 3300 3850
-Connection ~ 3250 4000
-Wire Wire Line
-	3700 4100 3700 4000
-Connection ~ 3700 4000
 Wire Wire Line
 	3850 3850 3850 3450
 Wire Wire Line
@@ -645,31 +565,21 @@ $EndComp
 NoConn ~ 5200 5400
 NoConn ~ 5200 5500
 NoConn ~ 5200 5600
-Text GLabel 3450 5600 0    60   Input ~ 0
-RelayOutput3
 $Comp
 L GNDREF #PWR029
 U 1 1 58AE8EB3
-P 3200 5400
-F 0 "#PWR029" H 3200 5150 50  0001 C CNN
-F 1 "GNDREF" H 3200 5250 50  0000 C CNN
-F 2 "" H 3200 5400 50  0000 C CNN
-F 3 "" H 3200 5400 50  0000 C CNN
-	1    3200 5400
+P 3250 5250
+F 0 "#PWR029" H 3250 5000 50  0001 C CNN
+F 1 "GNDREF" H 3250 5100 50  0000 C CNN
+F 2 "" H 3250 5250 50  0000 C CNN
+F 3 "" H 3250 5250 50  0000 C CNN
+	1    3250 5250
 	0    1    1    0   
 $EndComp
 Wire Wire Line
 	5200 5250 5450 5250
 Wire Wire Line
 	3700 5250 3900 5250
-Wire Wire Line
-	3700 5500 3900 5500
-Wire Wire Line
-	3200 5400 3900 5400
-Wire Wire Line
-	3450 5600 3900 5600
-Text GLabel 4100 4600 2    60   Input ~ 0
-Output3
 $Comp
 L D D203
 U 1 1 58AE8EC3
@@ -684,13 +594,7 @@ $EndComp
 Wire Wire Line
 	3500 4600 3500 4950
 Wire Wire Line
-	3250 5400 3250 5250
-Wire Wire Line
 	3250 5250 3300 5250
-Connection ~ 3250 5400
-Wire Wire Line
-	3700 5500 3700 5400
-Connection ~ 3700 5400
 Wire Wire Line
 	3850 5250 3850 4850
 Wire Wire Line
@@ -711,4 +615,100 @@ Wire Notes Line
 	8650 1550 2600 1550
 Wire Notes Line
 	2600 6050 8650 6050
+Text HLabel 3750 4100 0    60   Input ~ 0
+OR2sel1
+Text HLabel 3750 4200 0    60   Input ~ 0
+OR2sel2
+Text HLabel 3750 4000 0    60   Input ~ 0
+OR2com
+Wire Wire Line
+	3750 4000 3900 4000
+Wire Wire Line
+	3750 4100 3900 4100
+Wire Wire Line
+	3750 4200 3900 4200
+Text HLabel 4200 3200 2    60   Input ~ 0
+O2
+Wire Wire Line
+	4200 3200 4100 3200
+Text HLabel 4200 1800 2    60   Input ~ 0
+O1
+Text HLabel 4200 4600 2    60   Input ~ 0
+O3
+Text HLabel 7100 3250 2    60   Input ~ 0
+O5
+Text HLabel 7100 1850 2    60   Input ~ 0
+O4
+Text HLabel 7100 4650 2    60   Input ~ 0
+O6
+Wire Wire Line
+	4200 4600 4100 4600
+Wire Wire Line
+	4200 1800 4100 1800
+Wire Wire Line
+	7100 1850 7000 1850
+Wire Wire Line
+	7100 3250 7000 3250
+Wire Wire Line
+	7100 4650 7000 4650
+Text HLabel 3750 2700 0    60   Input ~ 0
+OR1sel1
+Text HLabel 3750 2800 0    60   Input ~ 0
+OR1sel2
+Text HLabel 3750 2600 0    60   Input ~ 0
+OR1com
+Text HLabel 3750 5500 0    60   Input ~ 0
+OR3sel1
+Text HLabel 3750 5600 0    60   Input ~ 0
+OR3sel2
+Text HLabel 3750 5400 0    60   Input ~ 0
+OR3com
+Text HLabel 6650 2750 0    60   Input ~ 0
+OR4sel1
+Text HLabel 6650 2850 0    60   Input ~ 0
+OR4sel2
+Text HLabel 6650 2650 0    60   Input ~ 0
+OR4com
+Text HLabel 6650 4150 0    60   Input ~ 0
+OR5sel1
+Text HLabel 6650 4250 0    60   Input ~ 0
+OR5sel2
+Text HLabel 6650 4050 0    60   Input ~ 0
+OR5com
+Text HLabel 6650 5550 0    60   Input ~ 0
+OR6sel1
+Text HLabel 6650 5650 0    60   Input ~ 0
+OR6sel2
+Text HLabel 6650 5450 0    60   Input ~ 0
+OR6com
+Wire Wire Line
+	6650 5450 6800 5450
+Wire Wire Line
+	6650 5550 6800 5550
+Wire Wire Line
+	6650 5650 6800 5650
+Wire Wire Line
+	6650 4050 6800 4050
+Wire Wire Line
+	6650 4150 6800 4150
+Wire Wire Line
+	6650 4250 6800 4250
+Wire Wire Line
+	6650 2650 6800 2650
+Wire Wire Line
+	6650 2750 6800 2750
+Wire Wire Line
+	6650 2850 6800 2850
+Wire Wire Line
+	3750 2600 3900 2600
+Wire Wire Line
+	3750 2700 3900 2700
+Wire Wire Line
+	3750 2800 3900 2800
+Wire Wire Line
+	3750 5400 3900 5400
+Wire Wire Line
+	3750 5500 3900 5500
+Wire Wire Line
+	3750 5600 3900 5600
 $EndSCHEMATC
