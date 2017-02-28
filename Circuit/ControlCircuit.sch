@@ -369,7 +369,7 @@ F 1 "CONN_01X02" V 10800 5600 50  0000 C CNN
 F 2 "Connectors_Terminal_Blocks:TerminalBlock_Pheonix_MKDS1.5-2pol" H 10700 5600 50  0001 C CNN
 F 3 "" H 10700 5600 50  0000 C CNN
 	1    10700 5600
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L GND #PWR09
